@@ -165,12 +165,19 @@ class Game {
     start(gameMode) {
         this.gameMode = gameMode;
         this.winner = 0;
-        if (gameMode == "vs cpu") {
+        if (gameMode === "vs cpu") {
             this.CPUPlayer = Math.floor(Math.random() * 2) + 1;
             if (this.playerTurn == this.CPUPlayer)
                 this.runCPUTurn();
             document.querySelector(`.player-${this.CPUPlayer}-score .player-number`).textContent = "CPU";
             document.querySelector(`.player-${this.CPUPlayer == 1 ? 2 : 1}-score .player-number`).textContent = "YOU";
+        }
+        else {
+            this.CPUPlayer = 0;
+            document.querySelector(`.player-1-score .player-number`).textContent =
+                "PLAYER 1";
+            document.querySelector(`.player-2-score .player-number`).textContent =
+                "PLAYER 2";
         }
         for (let i = 0; i <= 5; i++) {
             for (let j = 0; j <= 6; j++) {
