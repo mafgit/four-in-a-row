@@ -1,3 +1,5 @@
+type gameModeType = "" | "vs player" | "vs cpu";
+
 class Game {
   private circles: number[][] = [
     [0, 0, 0, 0, 0, 0, 0],
@@ -8,22 +10,31 @@ class Game {
     [0, 0, 0, 0, 0, 0, 0],
   ];
 
-  private previousFirstPlayer: number = 0;
+  private firstPlayer: number = 2;
 
   private score = {
     1: 0,
     2: 0,
-  }; // TODO: scores
+  }; // TODO: update scores
 
   private playerTurn: number = 1;
+
+  private CPUPlayer: number = 0;
+
+  private gameMode: gameModeType = "";
 
   private interval: number = 0;
 
   private winner: number = 0;
 
   changeTurn = (): void => {
-    this.playerTurn = this.playerTurn == 1 ? 2 : 1;
+    if (this.playerTurn != this.CPUPlayer && this.gameMode == "vs cpu") {
+      this.runCPUTurn();
+    }
+
+    this.playerTurn = this.playerTurn === 1 ? 2 : 1;
     this.changeTurnInDOM();
+    this.timer();
   };
 
   changeTurnInDOM() {
@@ -33,8 +44,12 @@ class Game {
     timerAndTurn.classList.remove("player-1", "player-2");
     timerAndTurn.classList.add(this.playerTurn == 1 ? "player-1" : "player-2");
     const turn = document.querySelector(".turn") as HTMLParagraphElement;
-    turn.textContent =
-      this.playerTurn == 1 ? "PLAYER 1'S TURN" : "PLAYER 2'S TURN";
+    if (this.gameMode == "vs player")
+      turn.textContent =
+        this.playerTurn == 1 ? "PLAYER 1'S TURN" : "PLAYER 2'S TURN";
+    else
+      turn.textContent =
+        this.playerTurn == this.CPUPlayer ? "CPU'S TURN" : "YOUR TURN";
   }
 
   getAvailableRow = (colNum: number): number => {
@@ -53,6 +68,8 @@ class Game {
   setCircle(row: number, col: number): void {
     this.circles[row][col] = this.playerTurn;
     this.setCircleInDOM(row, col);
+    this.checkWinner(row, col);
+    if (this.winner == 0) this.changeTurn();
   }
 
   setCircleInDOM(row: number, col: number) {
@@ -193,8 +210,37 @@ class Game {
     return 0;
   }
 
-  restart() {
+  runCPUTurn() {
+    console.log("asd");
+
+    let timeout = setTimeout(() => {
+      while (this.playerTurn == this.CPUPlayer) {
+        // let x = Math.floor(Math.random() * 6);
+        let y = Math.floor(Math.random() * 7);
+        let x = this.getAvailableRow(y);
+        this.setCircle(x, y);
+      }
+
+      clearTimeout(timeout);
+    }, 2000);
+  }
+
+  start(gameMode: gameModeType) {
+    this.gameMode = gameMode;
     this.winner = 0;
+
+    if (gameMode == "vs cpu") {
+      this.CPUPlayer = Math.floor(Math.random() * 2) + 1;
+      if (this.playerTurn == this.CPUPlayer) this.runCPUTurn();
+
+      document.querySelector(
+        `.player-${this.CPUPlayer}-score .player-number`
+      )!.textContent = "CPU";
+
+      document.querySelector(
+        `.player-${this.CPUPlayer == 1 ? 2 : 1}-score .player-number`
+      )!.textContent = "YOU";
+    }
 
     for (let i = 0; i <= 5; i++) {
       for (let j = 0; j <= 6; j++) {
@@ -210,74 +256,101 @@ class Game {
 
     clearInterval(this.interval);
 
-    this.playerTurn =
-      this.previousFirstPlayer == 0 || this.previousFirstPlayer == 1 ? 2 : 1;
-
-    this.previousFirstPlayer = this.playerTurn == 1 ? 2 : 1;
-
-    // BUG: turn not switching on restart if it is 2nd player's turn that is first
+    this.firstPlayer = this.firstPlayer === 1 ? 2 : 1;
+    this.playerTurn = this.firstPlayer;
 
     this.changeTurnInDOM();
     this.setTimeLeftInDOM();
 
     this.timer();
   }
+
+  getGameMode(): gameModeType {
+    return this.gameMode;
+  }
+
+  getCPUPlayer(): number {
+    return this.CPUPlayer;
+  }
+
+  getPlayerTurn(): number {
+    return this.playerTurn;
+  }
+
+  getWinner(): number {
+    return this.winner;
+  }
 }
 
 const game: Game = new Game();
 
-const cols: NodeListOf<HTMLDivElement> = document.querySelectorAll(".col");
-
-let winner: number;
-
-game.timer();
-
-cols.forEach((col) => {
-  col.addEventListener("click", () => {
-    const colNum: number = Number(col.classList[1].substring(4, 5));
-    const availableRow = game.getAvailableRow(colNum);
-    if (availableRow != -1) {
-      // console.log(availableRow, colNum);
-      game.setCircle(availableRow, colNum);
-      game.changeTurn();
-      game.timer();
-      winner = game.checkWinner(availableRow, colNum);
-      // console.log("\n\n", winner, "\n\n");
-      if (winner != 0) {
-        console.log(winner);
-        game.restart();
-      }
-    }
-  });
-});
-
-let menuOpen = false;
+// MENU & RESTART
+let menuOpen = true;
 const menuBtn = document.querySelector(".menu-btn");
 const menuContainer = document.querySelector(".menu-container");
-// const menu = document.querySelector(".menu");
 
 menuBtn?.addEventListener("click", () => {
   if (menuOpen == false) {
     menuContainer?.classList.add("opened");
-    // menu?.classList.add("opened");
     menuOpen = true;
   }
 });
 
+const closeMenu = () => {
+  menuContainer?.classList.remove("opened");
+  menuOpen = false;
+};
+
+const menuOpt1 = menuContainer?.querySelector(".menu-opt-1");
+const menuOpt2 = menuContainer?.querySelector(".menu-opt-2");
+const menuOpt3 = menuContainer?.querySelector(".menu-opt-3");
+
+menuOpt1?.addEventListener("click", () => {
+  game.start("vs cpu");
+  closeMenu();
+});
+
+menuOpt2?.addEventListener("click", () => {
+  game.start("vs player");
+  closeMenu();
+});
+
+menuOpt3?.addEventListener("click", () => {
+  // TODO: show game rules
+});
+
 menuContainer?.addEventListener("click", (e) => {
+  if (game.getGameMode() === "") return;
   const { classList } = e.target as HTMLElement;
   if (
     (classList.contains("menu-container") || classList.contains("logo")) &&
     menuOpen == true
   ) {
-    menuContainer?.classList.remove("opened");
-    // menu?.classList.remove("opened");
-    menuOpen = false;
+    closeMenu();
   }
 });
 
 const restartBtn = document.querySelector(".restart-btn");
-restartBtn?.addEventListener("click", () => game.restart());
+restartBtn?.addEventListener("click", () => game.start(game.getGameMode()));
 
 // TODO: check if whole board is filled
-// TODO: different modes
+
+// CLICKING A COLUMN
+let winner: number = 0;
+const cols: NodeListOf<HTMLDivElement> = document.querySelectorAll(".col");
+cols.forEach((col) => {
+  col.addEventListener("click", () => {
+    if (game.getPlayerTurn() === game.getCPUPlayer()) return;
+    const colNum: number = Number(col.classList[1].substring(4, 5));
+    const availableRow = game.getAvailableRow(colNum);
+    if (availableRow != -1) {
+      game.setCircle(availableRow, colNum);
+      winner = game.getWinner();
+      if (winner != 0) {
+        console.log(winner);
+        // TODO: show winner
+        game.start(game.getGameMode());
+      }
+    }
+  });
+});

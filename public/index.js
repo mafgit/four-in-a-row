@@ -9,17 +9,23 @@ class Game {
             [0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0],
         ];
-        this.previousFirstPlayer = 0;
+        this.firstPlayer = 2;
         this.score = {
             1: 0,
             2: 0,
         };
         this.playerTurn = 1;
+        this.CPUPlayer = 0;
+        this.gameMode = "";
         this.interval = 0;
         this.winner = 0;
         this.changeTurn = () => {
-            this.playerTurn = this.playerTurn == 1 ? 2 : 1;
+            if (this.playerTurn != this.CPUPlayer && this.gameMode == "vs cpu") {
+                this.runCPUTurn();
+            }
+            this.playerTurn = this.playerTurn === 1 ? 2 : 1;
             this.changeTurnInDOM();
+            this.timer();
         };
         this.getAvailableRow = (colNum) => {
             const valid = this.circles[0][colNum] == 0;
@@ -37,12 +43,19 @@ class Game {
         timerAndTurn.classList.remove("player-1", "player-2");
         timerAndTurn.classList.add(this.playerTurn == 1 ? "player-1" : "player-2");
         const turn = document.querySelector(".turn");
-        turn.textContent =
-            this.playerTurn == 1 ? "PLAYER 1'S TURN" : "PLAYER 2'S TURN";
+        if (this.gameMode == "vs player")
+            turn.textContent =
+                this.playerTurn == 1 ? "PLAYER 1'S TURN" : "PLAYER 2'S TURN";
+        else
+            turn.textContent =
+                this.playerTurn == this.CPUPlayer ? "CPU'S TURN" : "YOUR TURN";
     }
     setCircle(row, col) {
         this.circles[row][col] = this.playerTurn;
         this.setCircleInDOM(row, col);
+        this.checkWinner(row, col);
+        if (this.winner == 0)
+            this.changeTurn();
     }
     setCircleInDOM(row, col) {
         const circle = document.querySelector(`.circle-${row}-${col}`);
@@ -130,8 +143,27 @@ class Game {
         }
         return 0;
     }
-    restart() {
+    runCPUTurn() {
+        console.log("asd");
+        let timeout = setTimeout(() => {
+            while (this.playerTurn == this.CPUPlayer) {
+                let y = Math.floor(Math.random() * 7);
+                let x = this.getAvailableRow(y);
+                this.setCircle(x, y);
+            }
+            clearTimeout(timeout);
+        }, 2000);
+    }
+    start(gameMode) {
+        this.gameMode = gameMode;
         this.winner = 0;
+        if (gameMode == "vs cpu") {
+            this.CPUPlayer = Math.floor(Math.random() * 2) + 1;
+            if (this.playerTurn == this.CPUPlayer)
+                this.runCPUTurn();
+            document.querySelector(`.player-${this.CPUPlayer}-score .player-number`).textContent = "CPU";
+            document.querySelector(`.player-${this.CPUPlayer == 1 ? 2 : 1}-score .player-number`).textContent = "YOU";
+        }
         for (let i = 0; i <= 5; i++) {
             for (let j = 0; j <= 6; j++) {
                 this.circles[i][j] = 0;
@@ -140,35 +172,27 @@ class Game {
             }
         }
         clearInterval(this.interval);
-        this.playerTurn =
-            this.previousFirstPlayer == 0 || this.previousFirstPlayer == 1 ? 2 : 1;
-        this.previousFirstPlayer = this.playerTurn == 1 ? 2 : 1;
+        this.firstPlayer = this.firstPlayer === 1 ? 2 : 1;
+        this.playerTurn = this.firstPlayer;
         this.changeTurnInDOM();
         this.setTimeLeftInDOM();
         this.timer();
     }
+    getGameMode() {
+        return this.gameMode;
+    }
+    getCPUPlayer() {
+        return this.CPUPlayer;
+    }
+    getPlayerTurn() {
+        return this.playerTurn;
+    }
+    getWinner() {
+        return this.winner;
+    }
 }
 const game = new Game();
-const cols = document.querySelectorAll(".col");
-let winner;
-game.timer();
-cols.forEach((col) => {
-    col.addEventListener("click", () => {
-        const colNum = Number(col.classList[1].substring(4, 5));
-        const availableRow = game.getAvailableRow(colNum);
-        if (availableRow != -1) {
-            game.setCircle(availableRow, colNum);
-            game.changeTurn();
-            game.timer();
-            winner = game.checkWinner(availableRow, colNum);
-            if (winner != 0) {
-                console.log(winner);
-                game.restart();
-            }
-        }
-    });
-});
-let menuOpen = false;
+let menuOpen = true;
 const menuBtn = document.querySelector(".menu-btn");
 const menuContainer = document.querySelector(".menu-container");
 menuBtn === null || menuBtn === void 0 ? void 0 : menuBtn.addEventListener("click", () => {
@@ -177,13 +201,49 @@ menuBtn === null || menuBtn === void 0 ? void 0 : menuBtn.addEventListener("clic
         menuOpen = true;
     }
 });
+const closeMenu = () => {
+    menuContainer === null || menuContainer === void 0 ? void 0 : menuContainer.classList.remove("opened");
+    menuOpen = false;
+};
+const menuOpt1 = menuContainer === null || menuContainer === void 0 ? void 0 : menuContainer.querySelector(".menu-opt-1");
+const menuOpt2 = menuContainer === null || menuContainer === void 0 ? void 0 : menuContainer.querySelector(".menu-opt-2");
+const menuOpt3 = menuContainer === null || menuContainer === void 0 ? void 0 : menuContainer.querySelector(".menu-opt-3");
+menuOpt1 === null || menuOpt1 === void 0 ? void 0 : menuOpt1.addEventListener("click", () => {
+    game.start("vs cpu");
+    closeMenu();
+});
+menuOpt2 === null || menuOpt2 === void 0 ? void 0 : menuOpt2.addEventListener("click", () => {
+    game.start("vs player");
+    closeMenu();
+});
+menuOpt3 === null || menuOpt3 === void 0 ? void 0 : menuOpt3.addEventListener("click", () => {
+});
 menuContainer === null || menuContainer === void 0 ? void 0 : menuContainer.addEventListener("click", (e) => {
+    if (game.getGameMode() === "")
+        return;
     const { classList } = e.target;
     if ((classList.contains("menu-container") || classList.contains("logo")) &&
         menuOpen == true) {
-        menuContainer === null || menuContainer === void 0 ? void 0 : menuContainer.classList.remove("opened");
-        menuOpen = false;
+        closeMenu();
     }
 });
 const restartBtn = document.querySelector(".restart-btn");
-restartBtn === null || restartBtn === void 0 ? void 0 : restartBtn.addEventListener("click", () => game.restart());
+restartBtn === null || restartBtn === void 0 ? void 0 : restartBtn.addEventListener("click", () => game.start(game.getGameMode()));
+let winner = 0;
+const cols = document.querySelectorAll(".col");
+cols.forEach((col) => {
+    col.addEventListener("click", () => {
+        if (game.getPlayerTurn() === game.getCPUPlayer())
+            return;
+        const colNum = Number(col.classList[1].substring(4, 5));
+        const availableRow = game.getAvailableRow(colNum);
+        if (availableRow != -1) {
+            game.setCircle(availableRow, colNum);
+            winner = game.getWinner();
+            if (winner != 0) {
+                console.log(winner);
+                game.start(game.getGameMode());
+            }
+        }
+    });
+});
