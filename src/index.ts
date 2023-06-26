@@ -278,3 +278,6 @@ menuContainer?.addEventListener("click", (e) => {
 
 const restartBtn = document.querySelector(".restart-btn");
 restartBtn?.addEventListener("click", () => game.restart());
+
+// TODO: check if whole board is filled
+// TODO: different modes
