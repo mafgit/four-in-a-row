@@ -1,6 +1,7 @@
 "use strict";
 class Game {
     constructor() {
+        this.filledCircles = 0;
         this.circles = [
             [0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0],
@@ -50,12 +51,20 @@ class Game {
             turn.textContent =
                 this.playerTurn == this.CPUPlayer ? "CPU'S TURN" : "YOUR TURN";
     }
-    setCircle(row, col) {
-        this.circles[row][col] = this.playerTurn;
-        this.setCircleInDOM(row, col);
-        this.checkWinner(row, col);
+    setCircle(col) {
+        const availableRow = game.getAvailableRow(col);
+        if (availableRow == -1)
+            return;
+        this.circles[availableRow][col] = this.playerTurn;
+        this.setCircleInDOM(availableRow, col);
+        this.filledCircles++;
+        this.checkWinner(availableRow, col);
         if (this.winner == 0)
             this.changeTurn();
+        if (this.filledCircles == 42 && this.winner == 0) {
+            alert("Game tied");
+            game.start(this.gameMode);
+        }
     }
     setCircleInDOM(row, col) {
         const circle = document.querySelector(`.circle-${row}-${col}`);
@@ -144,12 +153,11 @@ class Game {
         return 0;
     }
     runCPUTurn() {
-        console.log("asd");
+        let filledCircles = this.filledCircles;
         let timeout = setTimeout(() => {
-            while (this.playerTurn == this.CPUPlayer) {
-                let y = Math.floor(Math.random() * 7);
-                let x = this.getAvailableRow(y);
-                this.setCircle(x, y);
+            while (this.filledCircles == filledCircles) {
+                let col = Math.floor(Math.random() * 7);
+                this.setCircle(col);
             }
             clearTimeout(timeout);
         }, 2000);
@@ -216,8 +224,7 @@ menuOpt2 === null || menuOpt2 === void 0 ? void 0 : menuOpt2.addEventListener("c
     game.start("vs player");
     closeMenu();
 });
-menuOpt3 === null || menuOpt3 === void 0 ? void 0 : menuOpt3.addEventListener("click", () => {
-});
+menuOpt2 === null || menuOpt2 === void 0 ? void 0 : menuOpt2.addEventListener("click", () => { });
 menuContainer === null || menuContainer === void 0 ? void 0 : menuContainer.addEventListener("click", (e) => {
     if (game.getGameMode() === "")
         return;
@@ -236,14 +243,11 @@ cols.forEach((col) => {
         if (game.getPlayerTurn() === game.getCPUPlayer())
             return;
         const colNum = Number(col.classList[1].substring(4, 5));
-        const availableRow = game.getAvailableRow(colNum);
-        if (availableRow != -1) {
-            game.setCircle(availableRow, colNum);
-            winner = game.getWinner();
-            if (winner != 0) {
-                console.log(winner);
-                game.start(game.getGameMode());
-            }
+        game.setCircle(colNum);
+        winner = game.getWinner();
+        if (winner != 0) {
+            alert(`Player-${winner} won the game`);
+            game.start(game.getGameMode());
         }
     });
 });

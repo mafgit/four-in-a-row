@@ -1,6 +1,8 @@
 type gameModeType = "" | "vs player" | "vs cpu";
 
 class Game {
+  private filledCircles: number = 0; // max 42
+
   private circles: number[][] = [
     [0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0],
@@ -65,11 +67,19 @@ class Game {
     return -1;
   };
 
-  setCircle(row: number, col: number): void {
-    this.circles[row][col] = this.playerTurn;
-    this.setCircleInDOM(row, col);
-    this.checkWinner(row, col);
+  setCircle(col: number): void {
+    const availableRow = game.getAvailableRow(col);
+    if (availableRow == -1) return;
+    this.circles[availableRow][col] = this.playerTurn;
+    this.setCircleInDOM(availableRow, col);
+    this.filledCircles++;
+    this.checkWinner(availableRow, col);
     if (this.winner == 0) this.changeTurn();
+    if (this.filledCircles == 42 && this.winner == 0) {
+      alert("Game tied");
+      // TODO: replace alert
+      game.start(this.gameMode);
+    }
   }
 
   setCircleInDOM(row: number, col: number) {
@@ -211,14 +221,12 @@ class Game {
   }
 
   runCPUTurn() {
-    console.log("asd");
+    let filledCircles = this.filledCircles;
 
     let timeout = setTimeout(() => {
-      while (this.playerTurn == this.CPUPlayer) {
-        // let x = Math.floor(Math.random() * 6);
-        let y = Math.floor(Math.random() * 7);
-        let x = this.getAvailableRow(y);
-        this.setCircle(x, y);
+      while (this.filledCircles == filledCircles) {
+        let col = Math.floor(Math.random() * 7);
+        this.setCircle(col);
       }
 
       clearTimeout(timeout);
@@ -315,9 +323,7 @@ menuOpt2?.addEventListener("click", () => {
   closeMenu();
 });
 
-menuOpt3?.addEventListener("click", () => {
-  // TODO: show game rules
-});
+menuOpt2?.addEventListener("click", () => {});
 
 menuContainer?.addEventListener("click", (e) => {
   if (game.getGameMode() === "") return;
@@ -333,8 +339,6 @@ menuContainer?.addEventListener("click", (e) => {
 const restartBtn = document.querySelector(".restart-btn");
 restartBtn?.addEventListener("click", () => game.start(game.getGameMode()));
 
-// TODO: check if whole board is filled
-
 // CLICKING A COLUMN
 let winner: number = 0;
 const cols: NodeListOf<HTMLDivElement> = document.querySelectorAll(".col");
@@ -342,15 +346,12 @@ cols.forEach((col) => {
   col.addEventListener("click", () => {
     if (game.getPlayerTurn() === game.getCPUPlayer()) return;
     const colNum: number = Number(col.classList[1].substring(4, 5));
-    const availableRow = game.getAvailableRow(colNum);
-    if (availableRow != -1) {
-      game.setCircle(availableRow, colNum);
-      winner = game.getWinner();
-      if (winner != 0) {
-        console.log(winner);
-        // TODO: show winner
-        game.start(game.getGameMode());
-      }
+    game.setCircle(colNum);
+    winner = game.getWinner();
+    if (winner != 0) {
+      alert(`Player-${winner} won the game`);
+      // TODO: replace alert
+      game.start(game.getGameMode());
     }
   });
 });
