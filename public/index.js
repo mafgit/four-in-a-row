@@ -13,7 +13,7 @@ class Game {
         this.score = {
             1: 0,
             2: 0,
-        }; // TODO
+        };
         this.playerTurn = 1;
         this.interval = 0;
         this.winner = 0;
@@ -68,26 +68,12 @@ class Game {
         }
     }
     checkWinner(row, col) {
-        // console.clear();
-        // for (let i = 0; i < 7; i++) {
-        //   for (let j = 0; j < 6; j++) {
-        //     console.log(this.circleCols[i][j]);
-        //   }
-        // }
-        // [0, 0, 0, 0, 0, 0, 0],
-        // [0, 0, 0, 0, 0, 0, 0],
-        // [0, 0, 0, 0, 0, 0, 0],
-        // [0, 0, 0, 0, 0, 0, 0],
-        // [0, 0, 0, 0, 0, 0, 0],
-        // [0, 0, 0, 0, 0, 0, 0],
         let selected = this.circles[row][col];
         if (selected == 0)
             return 0;
-        // TODO: keep track of circles and give a style to them
         for (let i = 0; i < 6; i++) {
             for (let j = 0; j < 7; j++) {
                 let current = this.circles[i][j];
-                // down in col
                 if (i <= 2) {
                     if (current != selected)
                         continue;
@@ -101,7 +87,6 @@ class Game {
                     if (this.winner != 0)
                         return this.winner;
                 }
-                // right in row
                 if (j <= 3) {
                     if (current != selected)
                         continue;
@@ -115,19 +100,11 @@ class Game {
                     if (this.winner != 0)
                         return this.winner;
                 }
-                // diagonally right and down
                 if (i <= 2 && j <= 3) {
                     if (current != selected)
                         continue;
-                    // const c: NodeListOf<HTMLElement> =
-                    //   document.querySelectorAll(".circle");
-                    // c.forEach((b) => (b.style.border = "none"));
                     for (let x = i, y = j; x <= i + 3 && y <= j + 3; x++, y++) {
                         this.winner = selected;
-                        // const a: HTMLElement = document.querySelector(
-                        //   `.circle-${x}-${y}`
-                        // ) as HTMLElement;
-                        // a.style.border = "2px solid black";
                         if (this.circles[x][y] != selected) {
                             this.winner = 0;
                             break;
@@ -136,19 +113,11 @@ class Game {
                     if (this.winner != 0)
                         return this.winner;
                 }
-                // diagonally left and down
                 if (i <= 2 && j >= 3) {
                     if (current != selected)
                         continue;
-                    // const c: NodeListOf<HTMLElement> =
-                    //   document.querySelectorAll(".circle");
-                    // c.forEach((b) => (b.style.border = "none"));
                     for (let x = i, y = j; x <= i + 3 && y >= j - 3; x++, y--) {
                         this.winner = selected;
-                        // const a: HTMLElement = document.querySelector(
-                        //   `.circle-${x}-${y}`
-                        // ) as HTMLElement;
-                        // a.style.border = "2px solid black";
                         if (this.circles[x][y] != selected) {
                             this.winner = 0;
                             break;
@@ -174,7 +143,6 @@ class Game {
         this.playerTurn =
             this.previousFirstPlayer == 0 || this.previousFirstPlayer == 1 ? 2 : 1;
         this.previousFirstPlayer = this.playerTurn == 1 ? 2 : 1;
-        // BUG: turn not switching on restart if it is 2nd player's turn that is first
         this.changeTurnInDOM();
         this.setTimeLeftInDOM();
         this.timer();
@@ -189,12 +157,10 @@ cols.forEach((col) => {
         const colNum = Number(col.classList[1].substring(4, 5));
         const availableRow = game.getAvailableRow(colNum);
         if (availableRow != -1) {
-            // console.log(availableRow, colNum);
             game.setCircle(availableRow, colNum);
             game.changeTurn();
             game.timer();
             winner = game.checkWinner(availableRow, colNum);
-            // console.log("\n\n", winner, "\n\n");
             if (winner != 0) {
                 console.log(winner);
                 game.restart();
@@ -202,5 +168,22 @@ cols.forEach((col) => {
         }
     });
 });
+let menuOpen = false;
+const menuBtn = document.querySelector(".menu-btn");
+const menuContainer = document.querySelector(".menu-container");
+menuBtn === null || menuBtn === void 0 ? void 0 : menuBtn.addEventListener("click", () => {
+    if (menuOpen == false) {
+        menuContainer === null || menuContainer === void 0 ? void 0 : menuContainer.classList.add("opened");
+        menuOpen = true;
+    }
+});
+menuContainer === null || menuContainer === void 0 ? void 0 : menuContainer.addEventListener("click", (e) => {
+    const { classList } = e.target;
+    if ((classList.contains("menu-container") || classList.contains("logo")) &&
+        menuOpen == true) {
+        menuContainer === null || menuContainer === void 0 ? void 0 : menuContainer.classList.remove("opened");
+        menuOpen = false;
+    }
+});
 const restartBtn = document.querySelector(".restart-btn");
-restartBtn.addEventListener("click", () => game.restart());
+restartBtn === null || restartBtn === void 0 ? void 0 : restartBtn.addEventListener("click", () => game.restart());

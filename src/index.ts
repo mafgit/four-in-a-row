@@ -13,7 +13,7 @@ class Game {
   private score = {
     1: 0,
     2: 0,
-  }; // TODO
+  }; // TODO: scores
 
   private playerTurn: number = 1;
 
@@ -251,5 +251,30 @@ cols.forEach((col) => {
   });
 });
 
-const restartBtn = document.querySelector(".restart-btn") as HTMLButtonElement;
-restartBtn.addEventListener("click", () => game.restart());
+let menuOpen = false;
+const menuBtn = document.querySelector(".menu-btn");
+const menuContainer = document.querySelector(".menu-container");
+// const menu = document.querySelector(".menu");
+
+menuBtn?.addEventListener("click", () => {
+  if (menuOpen == false) {
+    menuContainer?.classList.add("opened");
+    // menu?.classList.add("opened");
+    menuOpen = true;
+  }
+});
+
+menuContainer?.addEventListener("click", (e) => {
+  const { classList } = e.target as HTMLElement;
+  if (
+    (classList.contains("menu-container") || classList.contains("logo")) &&
+    menuOpen == true
+  ) {
+    menuContainer?.classList.remove("opened");
+    // menu?.classList.remove("opened");
+    menuOpen = false;
+  }
+});
+
+const restartBtn = document.querySelector(".restart-btn");
+restartBtn?.addEventListener("click", () => game.restart());

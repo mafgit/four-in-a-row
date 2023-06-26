@@ -34,6 +34,15 @@ header {
   grid-template-columns: 1fr 1fr;
   justify-content: center;
   align-items: center;
+  transition: 0.3s;
+}
+
+.logo span {
+  pointer-events: none;
+}
+
+.logo:hover {
+  transform: scale(1.2);
 }
 
 .logo-circle {
@@ -100,7 +109,7 @@ main {
 }
 
 .col:hover {
-  background-color: var(--element-bg-color);
+  background-color: var(--dark);
 }
 
 .circle {
@@ -178,4 +187,82 @@ main {
 
 .player-2-logo {
   background-color: var(--player-2-bg-color);
+}
+
+.menu-container {
+  /* background-color: rgba(255, 255, 255, 0.575); */
+  backdrop-filter: blur(7px);
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+  top: 0;
+  left: 0;
+  /* display: none; */
+  /* justify-content: center;
+  align-items: center; */
+  transition: 0.3s;
+  z-index: -1;
+  transform: scale(0);
+}
+
+.menu-container.opened {
+  /* display: block; */
+  z-index: 999;
+  transform: scale(1);
+}
+
+.menu {
+  background-color: #1c1c1c;
+  width: 300px;
+  border-radius: 15px;
+  height: 300px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
+  /* margin: auto; */
+  position: absolute;
+  top: calc(50% - 150px);
+  left: calc(50% - 150px);
+}
+
+.menu-opts {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  width: 80%;
+}
+
+.menu-opt {
+  outline: none;
+  border: none;
+  padding: 10px;
+  border-radius: 8px;
+  width: 100%;
+  cursor: pointer;
+  transition: 0.3s;
+  font-weight: bold;
+}
+
+.menu-opt:nth-of-type(1) {
+  background-color: var(--player-1-bg-color);
+  color: #fff;
+}
+
+.menu-opt:nth-of-type(2) {
+  background-color: var(--player-2-bg-color);
+}
+
+.menu-opt:nth-of-type(3) {
+  background-color: #fff;
+}
+
+.menu .logo .logo-circle {
+  border: none;
+}
+
+.menu-opt:hover {
+  transform: scale(1.05);
 }
