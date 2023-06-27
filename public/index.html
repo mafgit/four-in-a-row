@@ -7,7 +7,6 @@
     <title>Four in a row</title>
   </head>
   <body>
-    <!-- TODO: Animation of circle moving down -->
     <header>
       <button class="header-btn menu-btn">MENU</button>
       <div class="logo">
@@ -19,19 +18,31 @@
       <button class="header-btn restart-btn">RESTART</button>
     </header>
 
-    <section class="menu-container opened">
-      <div class="menu">
+    <section class="popup-container menu-container opened">
+      <div class="popup menu">
         <div class="logo">
           <span class="logo-circle"></span>
           <span class="logo-circle"></span>
           <span class="logo-circle"></span>
           <span class="logo-circle"></span>
         </div>
-        <div class="menu-opts">
-          <button class="menu-opt menu-opt-1">PLAY VS CPU</button>
-          <button class="menu-opt menu-opt-2">PLAY VS PLAYER</button>
-          <button class="menu-opt menu-opt-3">GAME RULES</button>
+        <div class="popup-opts">
+          <button class="popup-opt popup-vs-cpu-btn">PLAY VS CPU</button>
+          <button class="popup-opt popup-vs-player-btn">PLAY VS PLAYER</button>
+          <button class="popup-opt popup-game-rules-btn">GAME RULES</button>
         </div>
+      </div>
+    </section>
+
+    <section class="popup-container alert-container">
+      <div class="popup">
+        <div class="logo">
+          <span class="logo-circle"></span>
+          <span class="logo-circle"></span>
+          <span class="logo-circle"></span>
+          <span class="logo-circle"></span>
+        </div>
+        <h3></h3>
       </div>
     </section>
 
@@ -44,6 +55,7 @@
 
       <div class="board">
         <div class="col col-0">
+          <!-- <div class="circle anim-circle"></div> -->
           <div class="circle circle-0-0"></div>
           <div class="circle circle-1-0"></div>
           <div class="circle circle-2-0"></div>

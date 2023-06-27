@@ -17,6 +17,8 @@ class Game {
   private score = {
     1: 0,
     2: 0,
+    YOU: 0,
+    CPU: 0,
   }; // TODO: update scores
 
   private playerTurn: number = 1;
@@ -67,27 +69,63 @@ class Game {
     return -1;
   };
 
+  openAlertInDOM(tied: boolean = false) {
+    let alertString: string = "";
+    if (tied) alertString = "GAME TIED!";
+    else {
+      if (this.gameMode === "vs cpu") {
+        if (this.winner === this.CPUPlayer) alertString = "CPU WON!";
+        else alertString = "YOU WON!";
+      } else {
+        alertString = `PLAYER ${this.winner} WON!`;
+      }
+    }
+
+    const alertContainer = document.querySelector(".alert-container")!;
+    alertContainer.classList.add("opened");
+    alertContainer.querySelector("h3")!.textContent = alertString;
+  }
+
   setCircle(col: number): void {
+    if (game.getGameMode() === "") return;
+
     const availableRow = game.getAvailableRow(col);
     if (availableRow == -1) return;
+
     this.circles[availableRow][col] = this.playerTurn;
+    this.checkWinner(availableRow, col);
     this.setCircleInDOM(availableRow, col);
     this.filledCircles++;
-    this.checkWinner(availableRow, col);
-    if (this.winner == 0) this.changeTurn();
-    if (this.filledCircles == 42 && this.winner == 0) {
-      alert("Game tied");
-      // TODO: replace alert
-      game.start(this.gameMode);
+
+    if (this.winner === 0) this.changeTurn();
+    else {
+      this.openAlertInDOM();
+      game.start();
+    }
+
+    if (this.filledCircles === 42 && this.winner === 0) {
+      this.openAlertInDOM(true);
+      game.start();
     }
   }
 
   setCircleInDOM(row: number, col: number) {
-    const circle: HTMLDivElement = document.querySelector(
-      `.circle-${row}-${col}`
-    ) as HTMLDivElement;
+    const circle = document.createElement("div");
 
-    circle.classList.add(this.playerTurn == 1 ? "player-1" : "player-2");
+    circle.classList.add(
+      "circle",
+      "anim-circle",
+      `circle-row-${row}`,
+      this.playerTurn === 1 ? "player-1" : "player-2"
+    );
+
+    circle.style.animation = `circle-to-${row} 0.3s ease forwards`;
+    document.querySelector(`.col-${col}`)?.appendChild(circle);
+
+    if (this.winner != 0) {
+      this.openAlertInDOM();
+      game.start();
+    }
   }
 
   setTimeLeftInDOM(timeLeft: number = 29): void {
@@ -233,7 +271,7 @@ class Game {
     }, 2000);
   }
 
-  start(gameMode: gameModeType) {
+  start(gameMode: gameModeType = this.gameMode) {
     this.gameMode = gameMode;
     this.winner = 0;
 
@@ -262,11 +300,26 @@ class Game {
       for (let j = 0; j <= 6; j++) {
         this.circles[i][j] = 0;
 
-        const circle: HTMLDivElement = document.querySelector(
-          `.circle-${i}-${j}`
-        ) as HTMLDivElement;
+        // const circle: HTMLDivElement = document.querySelector(
+        //   `.circle-${i}-${j}`
+        // ) as HTMLDivElement;
 
-        circle.classList.remove("player-1", "player-2");
+        // circle.classList.remove("player-1", "player-2");
+
+        const animCircles: NodeListOf<HTMLDivElement> =
+          document.querySelectorAll(".anim-circle");
+        animCircles.forEach((animCircle) => {
+          // animCircle.style.animation = "none";
+          // setTimeout(() => {
+          //   animCircle.style.animation = `circle-to-${animCircle.classList[2][11]} 0.3s ease forwards reverse`;
+          // }, 1);
+
+          // setTimeout(() => {
+          //   animCircle.remove();
+          // }, 400);
+
+          animCircle.remove();
+        });
       }
     }
 
@@ -304,6 +357,7 @@ const game: Game = new Game();
 let menuOpen = true;
 const menuBtn = document.querySelector(".menu-btn");
 const menuContainer = document.querySelector(".menu-container");
+const alertContainer = document.querySelector(".alert-container");
 
 menuBtn?.addEventListener("click", () => {
   if (menuOpen == false) {
@@ -317,21 +371,32 @@ const closeMenu = () => {
   menuOpen = false;
 };
 
-const menuOpt1 = menuContainer?.querySelector(".menu-opt-1");
-const menuOpt2 = menuContainer?.querySelector(".menu-opt-2");
-const menuOpt3 = menuContainer?.querySelector(".menu-opt-3");
+const closeAlert = () => {
+  alertContainer?.classList.remove("opened");
+};
 
-menuOpt1?.addEventListener("click", () => {
+const popupRestartBtn = menuContainer?.querySelector(".popup-restart-btn");
+const popupVSCPUBtn = menuContainer?.querySelector(".popup-vs-cpu-btn");
+const popupVSPlayerBtn = menuContainer?.querySelector(".popup-vs-player-btn");
+const popupGameRulesBtn = menuContainer?.querySelector(".popup-game-rules-btn");
+
+popupRestartBtn?.addEventListener("click", () => {
   game.start("vs cpu");
   closeMenu();
 });
 
-menuOpt2?.addEventListener("click", () => {
+popupVSCPUBtn?.addEventListener("click", () => {
+  game.start("vs cpu");
+  closeMenu();
+});
+
+popupVSPlayerBtn?.addEventListener("click", () => {
   game.start("vs player");
   closeMenu();
 });
 
-menuOpt2?.addEventListener("click", () => {});
+const popupContainers: NodeListOf<HTMLDivElement> =
+  document.querySelectorAll(".popup-container");
 
 menuContainer?.addEventListener("click", (e) => {
   if (game.getGameMode() === "") return;
@@ -344,22 +409,20 @@ menuContainer?.addEventListener("click", (e) => {
   }
 });
 
+alertContainer?.addEventListener("click", (e) => {
+  // TODO: stop timer until alert is closed
+  if (!(e.target as HTMLElement).classList.contains("popup")) closeAlert();
+});
+
 const restartBtn = document.querySelector(".restart-btn");
-restartBtn?.addEventListener("click", () => game.start(game.getGameMode()));
+restartBtn?.addEventListener("click", () => game.start());
 
 // CLICKING A COLUMN
-let winner: number = 0;
 const cols: NodeListOf<HTMLDivElement> = document.querySelectorAll(".col");
 cols.forEach((col) => {
   col.addEventListener("click", () => {
     if (game.getPlayerTurn() === game.getCPUPlayer()) return;
     const colNum: number = Number(col.classList[1].substring(4, 5));
     game.setCircle(colNum);
-    winner = game.getWinner();
-    if (winner != 0) {
-      alert(`Player-${winner} won the game`);
-      // TODO: replace alert
-      game.start(game.getGameMode());
-    }
   });
 });

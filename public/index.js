@@ -14,6 +14,8 @@ class Game {
         this.score = {
             1: 0,
             2: 0,
+            YOU: 0,
+            CPU: 0,
         };
         this.playerTurn = 1;
         this.CPUPlayer = 0;
@@ -51,24 +53,56 @@ class Game {
             turn.textContent =
                 this.playerTurn == this.CPUPlayer ? "CPU'S TURN" : "YOUR TURN";
     }
+    openAlertInDOM(tied = false) {
+        let alertString = "";
+        if (tied)
+            alertString = "GAME TIED!";
+        else {
+            if (this.gameMode === "vs cpu") {
+                if (this.winner === this.CPUPlayer)
+                    alertString = "CPU WON!";
+                else
+                    alertString = "YOU WON!";
+            }
+            else {
+                alertString = `PLAYER ${this.winner} WON!`;
+            }
+        }
+        const alertContainer = document.querySelector(".alert-container");
+        alertContainer.classList.add("opened");
+        alertContainer.querySelector("h3").textContent = alertString;
+    }
     setCircle(col) {
+        if (game.getGameMode() === "")
+            return;
         const availableRow = game.getAvailableRow(col);
         if (availableRow == -1)
             return;
         this.circles[availableRow][col] = this.playerTurn;
+        this.checkWinner(availableRow, col);
         this.setCircleInDOM(availableRow, col);
         this.filledCircles++;
-        this.checkWinner(availableRow, col);
-        if (this.winner == 0)
+        if (this.winner === 0)
             this.changeTurn();
-        if (this.filledCircles == 42 && this.winner == 0) {
-            alert("Game tied");
-            game.start(this.gameMode);
+        else {
+            this.openAlertInDOM();
+            game.start();
+        }
+        if (this.filledCircles === 42 && this.winner === 0) {
+            this.openAlertInDOM(true);
+            game.start();
         }
     }
     setCircleInDOM(row, col) {
-        const circle = document.querySelector(`.circle-${row}-${col}`);
-        circle.classList.add(this.playerTurn == 1 ? "player-1" : "player-2");
+        var _a;
+        const circle = document.createElement("div");
+        circle.classList.add("circle", "anim-circle", `circle-row-${row}`, this.playerTurn === 1 ? "player-1" : "player-2");
+        circle.style.animation = `circle-to-${row} 0.3s ease forwards`;
+        (_a = document.querySelector(`.col-${col}`)) === null || _a === void 0 ? void 0 : _a.appendChild(circle);
+        if (this.winner != 0) {
+            this.openAlertInDOM();
+            game.start();
+        }
     }
     setTimeLeftInDOM(timeLeft = 29) {
         const timeLeftElement = document.querySelector(".time-left");
@@ -162,7 +196,7 @@ class Game {
             clearTimeout(timeout);
         }, 2000);
     }
-    start(gameMode) {
+    start(gameMode = this.gameMode) {
         this.gameMode = gameMode;
         this.winner = 0;
         if (gameMode === "vs cpu") {
@@ -182,8 +216,10 @@ class Game {
         for (let i = 0; i <= 5; i++) {
             for (let j = 0; j <= 6; j++) {
                 this.circles[i][j] = 0;
-                const circle = document.querySelector(`.circle-${i}-${j}`);
-                circle.classList.remove("player-1", "player-2");
+                const animCircles = document.querySelectorAll(".anim-circle");
+                animCircles.forEach((animCircle) => {
+                    animCircle.remove();
+                });
             }
         }
         clearInterval(this.interval);
@@ -210,6 +246,7 @@ const game = new Game();
 let menuOpen = true;
 const menuBtn = document.querySelector(".menu-btn");
 const menuContainer = document.querySelector(".menu-container");
+const alertContainer = document.querySelector(".alert-container");
 menuBtn === null || menuBtn === void 0 ? void 0 : menuBtn.addEventListener("click", () => {
     if (menuOpen == false) {
         menuContainer === null || menuContainer === void 0 ? void 0 : menuContainer.classList.add("opened");
@@ -220,18 +257,26 @@ const closeMenu = () => {
     menuContainer === null || menuContainer === void 0 ? void 0 : menuContainer.classList.remove("opened");
     menuOpen = false;
 };
-const menuOpt1 = menuContainer === null || menuContainer === void 0 ? void 0 : menuContainer.querySelector(".menu-opt-1");
-const menuOpt2 = menuContainer === null || menuContainer === void 0 ? void 0 : menuContainer.querySelector(".menu-opt-2");
-const menuOpt3 = menuContainer === null || menuContainer === void 0 ? void 0 : menuContainer.querySelector(".menu-opt-3");
-menuOpt1 === null || menuOpt1 === void 0 ? void 0 : menuOpt1.addEventListener("click", () => {
+const closeAlert = () => {
+    alertContainer === null || alertContainer === void 0 ? void 0 : alertContainer.classList.remove("opened");
+};
+const popupRestartBtn = menuContainer === null || menuContainer === void 0 ? void 0 : menuContainer.querySelector(".popup-restart-btn");
+const popupVSCPUBtn = menuContainer === null || menuContainer === void 0 ? void 0 : menuContainer.querySelector(".popup-vs-cpu-btn");
+const popupVSPlayerBtn = menuContainer === null || menuContainer === void 0 ? void 0 : menuContainer.querySelector(".popup-vs-player-btn");
+const popupGameRulesBtn = menuContainer === null || menuContainer === void 0 ? void 0 : menuContainer.querySelector(".popup-game-rules-btn");
+popupRestartBtn === null || popupRestartBtn === void 0 ? void 0 : popupRestartBtn.addEventListener("click", () => {
     game.start("vs cpu");
     closeMenu();
 });
-menuOpt2 === null || menuOpt2 === void 0 ? void 0 : menuOpt2.addEventListener("click", () => {
+popupVSCPUBtn === null || popupVSCPUBtn === void 0 ? void 0 : popupVSCPUBtn.addEventListener("click", () => {
+    game.start("vs cpu");
+    closeMenu();
+});
+popupVSPlayerBtn === null || popupVSPlayerBtn === void 0 ? void 0 : popupVSPlayerBtn.addEventListener("click", () => {
     game.start("vs player");
     closeMenu();
 });
-menuOpt2 === null || menuOpt2 === void 0 ? void 0 : menuOpt2.addEventListener("click", () => { });
+const popupContainers = document.querySelectorAll(".popup-container");
 menuContainer === null || menuContainer === void 0 ? void 0 : menuContainer.addEventListener("click", (e) => {
     if (game.getGameMode() === "")
         return;
@@ -241,9 +286,12 @@ menuContainer === null || menuContainer === void 0 ? void 0 : menuContainer.addE
         closeMenu();
     }
 });
+alertContainer === null || alertContainer === void 0 ? void 0 : alertContainer.addEventListener("click", (e) => {
+    if (!e.target.classList.contains("popup"))
+        closeAlert();
+});
 const restartBtn = document.querySelector(".restart-btn");
-restartBtn === null || restartBtn === void 0 ? void 0 : restartBtn.addEventListener("click", () => game.start(game.getGameMode()));
-let winner = 0;
+restartBtn === null || restartBtn === void 0 ? void 0 : restartBtn.addEventListener("click", () => game.start());
 const cols = document.querySelectorAll(".col");
 cols.forEach((col) => {
     col.addEventListener("click", () => {
@@ -251,10 +299,5 @@ cols.forEach((col) => {
             return;
         const colNum = Number(col.classList[1].substring(4, 5));
         game.setCircle(colNum);
-        winner = game.getWinner();
-        if (winner != 0) {
-            alert(`Player-${winner} won the game`);
-            game.start(game.getGameMode());
-        }
     });
 });

@@ -112,6 +112,7 @@ main {
   padding: 5px;
   border-radius: 8px;
   transition: 0.3s;
+  position: relative;
 }
 
 .col:hover {
@@ -126,6 +127,86 @@ main {
   height: 60px;
   border-radius: 50%;
   background-color: var(--bg-color);
+}
+
+@keyframes circle-to-0 {
+  from {
+    top: -60px;
+    opacity: 0;
+  }
+
+  to {
+    top: 5px;
+    opacity: 1;
+  }
+}
+
+@keyframes circle-to-1 {
+  from {
+    top: -60px;
+    opacity: 0;
+  }
+
+  to {
+    top: 80px;
+    opacity: 1;
+  }
+}
+
+@keyframes circle-to-2 {
+  from {
+    top: -60px;
+    opacity: 0;
+  }
+
+  to {
+    top: 155px;
+    opacity: 1;
+  }
+}
+
+@keyframes circle-to-3 {
+  from {
+    top: -60px;
+    opacity: 0;
+  }
+
+  to {
+    top: 230px;
+    opacity: 1;
+  }
+}
+
+@keyframes circle-to-4 {
+  from {
+    top: -60px;
+    opacity: 0;
+  }
+
+  to {
+    top: 305px;
+    opacity: 1;
+  }
+}
+
+@keyframes circle-to-5 {
+  from {
+    top: -60px;
+    opacity: 0;
+  }
+
+  to {
+    top: 380px;
+    opacity: 1;
+  }
+}
+
+.anim-circle {
+  position: absolute;
+  top: -60px;
+  z-index: 1;
+  /* left: calc(50% - 30px); */
+  /* animation: circle-to-5 0.3s ease forwards; */
 }
 
 /* shadow in circles */
@@ -180,6 +261,7 @@ main {
   gap: 10px;
   height: 120px;
   color: var(--dark);
+  z-index: 2;
 }
 
 .player-number {
@@ -211,7 +293,7 @@ main {
   background-color: var(--player-2-bg-color);
 }
 
-.menu-container {
+.popup-container {
   /* background-color: rgba(255, 255, 255, 0.575); */
   backdrop-filter: blur(7px);
   /* backdrop-filter: ; */
@@ -229,17 +311,18 @@ main {
   transform: scale(0);
 }
 
-.menu-container.opened {
+.popup-container.opened {
   /* display: block; */
   z-index: 999;
   transform: scale(1);
 }
 
-.menu {
+.popup {
   background-color: #1c1c1c;
+  color: #fff;
   width: 300px;
   border-radius: 15px;
-  height: 300px;
+  height: 200px;
   display: flex;
   flex-direction: column;
   justify-content: space-evenly;
@@ -250,7 +333,15 @@ main {
   left: calc(50% - 150px);
 }
 
-.menu-opts {
+.popup h3 {
+  pointer-events: none;
+}
+
+.menu {
+  height: 300px;
+}
+
+.popup-opts {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -259,7 +350,7 @@ main {
   width: 80%;
 }
 
-.menu-opt {
+.popup-opt {
   outline: none;
   border: none;
   padding: 10px;
@@ -270,24 +361,24 @@ main {
   font-weight: bold;
 }
 
-.menu-opt:nth-of-type(1) {
+.popup-opt:nth-of-type(1) {
   background-color: var(--player-1-bg-color);
   color: #fff;
 }
 
-.menu-opt:nth-of-type(2) {
+.popup-opt:nth-of-type(2) {
   background-color: var(--player-2-bg-color);
 }
 
-.menu-opt:nth-of-type(3) {
+.popup-opt:nth-of-type(3) {
   background-color: #fff;
 }
 
-.menu .logo .logo-circle {
+.popup .logo .logo-circle {
   border: none;
 }
 
-.menu-opt:hover {
+.popup-opt:hover {
   transform: scale(1.05);
 }
 
