@@ -525,6 +525,13 @@ main {
 }
 
 @media screen and (max-width: 395px) {
+  .col:hover {
+    /* background-color: var(--dark); */
+    /* border-bottom: 5px solid black; */
+    box-shadow: none;
+    /* filter: drop-shadow(0px 5px 5px #1c1c1c); */
+  }
+
   .board {
     gap: 3px;
   }
@@ -547,5 +554,3 @@ main {
     width: 100%;
   }
 }
-
-/* TODO: active, hover in mobile view */
