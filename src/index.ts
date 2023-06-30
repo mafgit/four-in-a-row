@@ -1,5 +1,4 @@
 type gameModeType = "" | "vs player" | "vs cpu";
-type scoreType = { 1: number; 2: number; CPU: number; YOU: number };
 
 class Game {
   private filledCircles: number = 0; // max 42
@@ -11,7 +10,7 @@ class Game {
     [0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0],
-  ];
+  ]; // 6x7
 
   private firstPlayer: number = 2;
 
@@ -144,7 +143,7 @@ class Game {
       this.playerTurn === 1 ? "player-1" : "player-2"
     );
 
-    circle.style.animation = `circle-to-${row} 0.3s ease forwards`;
+    circle.style.animation = `circle-to-${row} 0.5s ease forwards`;
     document.querySelector(`.col-${col}`)?.appendChild(circle);
 
     // if (this.winner != 0) {
@@ -336,7 +335,7 @@ class Game {
         animCircles.forEach((animCircle) => {
           // animCircle.style.animation = "none";
           // setTimeout(() => {
-          //   animCircle.style.animation = `circle-to-${animCircle.classList[2][11]} 0.3s ease forwards reverse`;
+          //   animCircle.style.animation = `circle-to-${animCircle.classList[2][11]} 0.5s ease forwards reverse`;
           // }, 1);
 
           // setTimeout(() => {
@@ -382,12 +381,15 @@ function main() {
   const menuBtn = document.querySelector(".menu-btn");
   const menuContainer = document.querySelector(".menu-container");
   const alertContainer = document.querySelector(".alert-container");
+  const rulesContainer = document.querySelector(".rules-container");
+
+  const openMenu = () => {
+    menuContainer?.classList.add("opened");
+    menuOpen = true;
+  };
 
   menuBtn?.addEventListener("click", () => {
-    if (menuOpen == false) {
-      menuContainer?.classList.add("opened");
-      menuOpen = true;
-    }
+    if (menuOpen == false) openMenu();
   });
 
   const closeMenu = () => {
@@ -395,16 +397,14 @@ function main() {
     menuOpen = false;
   };
 
-  const closeAlert = () => {
-    alertContainer?.classList.remove("opened");
-  };
+  alertContainer?.classList.remove("opened");
 
   const popupRestartBtn = menuContainer?.querySelector(".popup-restart-btn");
   const popupVSCPUBtn = menuContainer?.querySelector(".popup-vs-cpu-btn");
   const popupVSPlayerBtn = menuContainer?.querySelector(".popup-vs-player-btn");
-  // const popupGameRulesBtn = menuContainer?.querySelector(
-  //   ".popup-game-rules-btn"
-  // );
+  const popupGameRulesBtn = menuContainer?.querySelector(
+    ".popup-game-rules-btn"
+  );
 
   const game: Game = new Game();
 
@@ -414,13 +414,18 @@ function main() {
   });
 
   popupVSCPUBtn?.addEventListener("click", () => {
-    game.start("vs cpu");
     closeMenu();
+    game.start("vs cpu");
   });
 
   popupVSPlayerBtn?.addEventListener("click", () => {
-    game.start("vs player");
     closeMenu();
+    game.start("vs player");
+  });
+
+  popupGameRulesBtn?.addEventListener("click", () => {
+    closeMenu();
+    rulesContainer?.classList.add("opened");
   });
 
   // const popupContainers: NodeListOf<HTMLDivElement> =
@@ -432,14 +437,24 @@ function main() {
     if (
       (classList.contains("menu-container") || classList.contains("logo")) &&
       menuOpen == true
-    ) {
+    )
       closeMenu();
-    }
   });
 
   alertContainer?.addEventListener("click", (e) => {
     // TODO: stop timer until alert is closed
-    if (!(e.target as HTMLElement).classList.contains("popup")) closeAlert();
+    if (!(e.target as HTMLElement).classList.contains("popup"))
+      alertContainer?.classList.remove("opened");
+  });
+
+  rulesContainer?.addEventListener("click", (e) => {
+    // TODO: stop timer until alert is closed
+    if (!(e.target as HTMLElement).classList.contains("popup")) {
+      rulesContainer?.classList.remove("opened");
+      if (game.getGameMode() === "") {
+        openMenu();
+      }
+    }
   });
 
   const restartBtn = document.querySelector(".restart-btn");

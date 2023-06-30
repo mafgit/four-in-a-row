@@ -114,7 +114,7 @@ class Game {
         var _a;
         const circle = document.createElement("div");
         circle.classList.add("circle", "anim-circle", `circle-row-${row}`, this.playerTurn === 1 ? "player-1" : "player-2");
-        circle.style.animation = `circle-to-${row} 0.3s ease forwards`;
+        circle.style.animation = `circle-to-${row} 0.5s ease forwards`;
         (_a = document.querySelector(`.col-${col}`)) === null || _a === void 0 ? void 0 : _a.appendChild(circle);
     }
     setTimeLeftInDOM(timeLeft = 29) {
@@ -260,47 +260,60 @@ function main() {
     const menuBtn = document.querySelector(".menu-btn");
     const menuContainer = document.querySelector(".menu-container");
     const alertContainer = document.querySelector(".alert-container");
+    const rulesContainer = document.querySelector(".rules-container");
+    const openMenu = () => {
+        menuContainer === null || menuContainer === void 0 ? void 0 : menuContainer.classList.add("opened");
+        menuOpen = true;
+    };
     menuBtn === null || menuBtn === void 0 ? void 0 : menuBtn.addEventListener("click", () => {
-        if (menuOpen == false) {
-            menuContainer === null || menuContainer === void 0 ? void 0 : menuContainer.classList.add("opened");
-            menuOpen = true;
-        }
+        if (menuOpen == false)
+            openMenu();
     });
     const closeMenu = () => {
         menuContainer === null || menuContainer === void 0 ? void 0 : menuContainer.classList.remove("opened");
         menuOpen = false;
     };
-    const closeAlert = () => {
-        alertContainer === null || alertContainer === void 0 ? void 0 : alertContainer.classList.remove("opened");
-    };
+    alertContainer === null || alertContainer === void 0 ? void 0 : alertContainer.classList.remove("opened");
     const popupRestartBtn = menuContainer === null || menuContainer === void 0 ? void 0 : menuContainer.querySelector(".popup-restart-btn");
     const popupVSCPUBtn = menuContainer === null || menuContainer === void 0 ? void 0 : menuContainer.querySelector(".popup-vs-cpu-btn");
     const popupVSPlayerBtn = menuContainer === null || menuContainer === void 0 ? void 0 : menuContainer.querySelector(".popup-vs-player-btn");
+    const popupGameRulesBtn = menuContainer === null || menuContainer === void 0 ? void 0 : menuContainer.querySelector(".popup-game-rules-btn");
     const game = new Game();
     popupRestartBtn === null || popupRestartBtn === void 0 ? void 0 : popupRestartBtn.addEventListener("click", () => {
         game.start("vs cpu");
         closeMenu();
     });
     popupVSCPUBtn === null || popupVSCPUBtn === void 0 ? void 0 : popupVSCPUBtn.addEventListener("click", () => {
-        game.start("vs cpu");
         closeMenu();
+        game.start("vs cpu");
     });
     popupVSPlayerBtn === null || popupVSPlayerBtn === void 0 ? void 0 : popupVSPlayerBtn.addEventListener("click", () => {
-        game.start("vs player");
         closeMenu();
+        game.start("vs player");
+    });
+    popupGameRulesBtn === null || popupGameRulesBtn === void 0 ? void 0 : popupGameRulesBtn.addEventListener("click", () => {
+        closeMenu();
+        rulesContainer === null || rulesContainer === void 0 ? void 0 : rulesContainer.classList.add("opened");
     });
     menuContainer === null || menuContainer === void 0 ? void 0 : menuContainer.addEventListener("click", (e) => {
         if (game.getGameMode() === "")
             return;
         const { classList } = e.target;
         if ((classList.contains("menu-container") || classList.contains("logo")) &&
-            menuOpen == true) {
+            menuOpen == true)
             closeMenu();
-        }
     });
     alertContainer === null || alertContainer === void 0 ? void 0 : alertContainer.addEventListener("click", (e) => {
         if (!e.target.classList.contains("popup"))
-            closeAlert();
+            alertContainer === null || alertContainer === void 0 ? void 0 : alertContainer.classList.remove("opened");
+    });
+    rulesContainer === null || rulesContainer === void 0 ? void 0 : rulesContainer.addEventListener("click", (e) => {
+        if (!e.target.classList.contains("popup")) {
+            rulesContainer === null || rulesContainer === void 0 ? void 0 : rulesContainer.classList.remove("opened");
+            if (game.getGameMode() === "") {
+                openMenu();
+            }
+        }
     });
     const restartBtn = document.querySelector(".restart-btn");
     restartBtn === null || restartBtn === void 0 ? void 0 : restartBtn.addEventListener("click", () => game.start());

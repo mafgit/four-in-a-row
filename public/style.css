@@ -241,6 +241,23 @@ main {
   font-weight: bold;
 }
 
+/* @keyframes timer-anim {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+} */
+
+/* .timer-and-turn h1 {
+  animation: timer-anim 1s infinite;
+} */
+
 .timer-and-turn.player-1 {
   background-color: var(--player-1-bg-color);
 }
@@ -384,6 +401,31 @@ main {
 
 .popup-opt:hover {
   transform: scale(1.05);
+}
+
+.rules-container .popup {
+  height: 580px;
+  padding: 40px;
+  display: flex;
+  width: 340px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  line-height: 1.5;
+  top: calc(50% - 290px);
+  left: calc(50% - 160px);
+}
+
+.rules-container .popup h1 {
+  color: #b86eff;
+  text-decoration: underline;
+  font-size: 1.3em;
+}
+
+.rules-container .popup h3 {
+  color: #b86eff;
+  font-size: 1.1em;
 }
 
 @media screen and (max-width: 1035px) {
